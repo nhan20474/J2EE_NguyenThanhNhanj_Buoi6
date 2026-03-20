@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .navbar a:hover {
+            color: #ccc;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .btn-create {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-create:hover {
+            background-color: #0056b3;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f9f9f9;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn-edit, .btn-delete {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        
+        .btn-edit {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #218838;
+        }
+        
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        
+        .no-products {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-size: 16px;
+        }
+        
+        .price {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .product-image {
+            max-width: 80px;
+            max-height: 80px;
+        }
+        
+        footer {
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div>
+            <h1>Products Management</h1>
+        </div>
+        <ul>
+            <li><a href="/products">Home</a></li>
+            <li><a href="/products">Products</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Products List</h1>
+            <a href="/products/new" class="btn-create">Create New Product</a>
+        </div>
+        
+        <table th:if="${products.size() > 0}">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Category Name</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product, iterStat : ${products}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td th:text="${product.name}">Product Name</td>
+                    <td class="price" th:text="${#numbers.formatDecimal(product.price, 1, 0)}">0</td>
+                    <td th:text="${product.category.name}">Category</td>
+                    <td>
+                        <img th:if="${product.image != null and product.image != ''}" 
+                             th:src="${product.image}" 
+                             alt="Product Image" 
+                             class="product-image">
+                        <span th:if="${product.image == null or product.image == ''}">-</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn-edit">Edit</a>
+                        <a th:href="@{/products/{id}/delete(id=${product.id})}" 
+                           class="btn-delete" 
+                           onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="no-products" th:if="${products.size() == 0}">
+            <p>No products found. <a href="/products/new">Create a new product</a></p>
+        </div>
+        
+        <footer>
+            © 2025 - Phần mềm quản lý sản phẩm J2EE
+        </footer>
+    </div>
+</body>
+</html>
