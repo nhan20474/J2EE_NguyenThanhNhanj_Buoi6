@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -164,6 +164,14 @@
         <ul>
             <li><a href="/products">Home</a></li>
             <li><a href="/products">Products</a></li>
+            <li sec:authorize="isAuthenticated()">
+                <span>Xin chao, <strong sec:authentication="name">user</strong></span>
+            </li>
+            <li sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" style="background:none;border:none;color:white;font-weight:bold;cursor:pointer;">Logout</button>
+                </form>
+            </li>
         </ul>
     </nav>
     
@@ -172,7 +180,7 @@
             <h1 th:text="${product.id != null} ? 'Edit Product' : 'Create New Product'">Product Form</h1>
         </div>
         
-        <form th:action="${product.id != null} ? @{/products/{id}(id=${product.id})} : @{/products}" 
+          <form th:action="${product.id != null} ? @{/products/{id}/edit(id=${product.id})} : @{/products/add}" 
               method="POST"
               th:object="${product}">
             

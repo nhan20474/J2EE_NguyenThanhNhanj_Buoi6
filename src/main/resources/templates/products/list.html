@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -161,13 +161,21 @@
         <ul>
             <li><a href="/products">Home</a></li>
             <li><a href="/products">Products</a></li>
+            <li sec:authorize="isAuthenticated()">
+                <span>Xin chao, <strong sec:authentication="name">user</strong></span>
+            </li>
+            <li sec:authorize="isAuthenticated()">
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" style="background:none;border:none;color:white;font-weight:bold;cursor:pointer;">Logout</button>
+                </form>
+            </li>
         </ul>
     </nav>
     
     <div class="container">
         <div class="header">
             <h1>Products List</h1>
-            <a href="/products/new" class="btn-create">Create New Product</a>
+            <a href="/products/add" class="btn-create" sec:authorize="hasRole('ADMIN')">Create New Product</a>
         </div>
         
         <table th:if="${products.size() > 0}">
@@ -195,9 +203,10 @@
                         <span th:if="${product.image == null or product.image == ''}">-</span>
                     </td>
                     <td>
-                        <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn-edit">Edit</a>
+                        <a th:href="@{/products/{id}/edit(id=${product.id})}" class="btn-edit" sec:authorize="hasRole('ADMIN')">Edit</a>
                         <a th:href="@{/products/{id}/delete(id=${product.id})}" 
                            class="btn-delete" 
+                           sec:authorize="hasRole('ADMIN')"
                            onclick="return confirm('Are you sure?')">Delete</a>
                     </td>
                 </tr>
@@ -205,7 +214,7 @@
         </table>
         
         <div class="no-products" th:if="${products.size() == 0}">
-            <p>No products found. <a href="/products/new">Create a new product</a></p>
+            <p>No products found. <a href="/products/add" sec:authorize="hasRole('ADMIN')">Create a new product</a></p>
         </div>
         
         <footer>

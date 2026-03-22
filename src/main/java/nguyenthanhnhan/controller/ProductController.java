@@ -22,7 +22,7 @@ public class ProductController {
     }
     
     // Show create product form
-    @GetMapping("/new")
+    @GetMapping("/add")
     public String showCreateForm(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", productService.getAllCategories());
@@ -30,7 +30,7 @@ public class ProductController {
     }
     
     // Save new product
-    @PostMapping("")
+    @PostMapping("/add")
     public String createProduct(@ModelAttribute Product product) {
         productService.saveProduct(product);
         return "redirect:/products";
@@ -46,7 +46,7 @@ public class ProductController {
     }
     
     // Update product
-    @PostMapping("/{id}")
+    @PostMapping("/{id}/edit")
     public String updateProduct(@PathVariable Long id, @ModelAttribute Product product) {
         productService.updateProduct(id, product);
         return "redirect:/products";
