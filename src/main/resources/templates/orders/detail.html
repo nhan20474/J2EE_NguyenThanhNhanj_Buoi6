@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+        body { font-family: 'Be Vietnam Pro', sans-serif; background: #eef5ff; color: #172845; margin: 0; }
+        .container {
+            max-width: 1000px;
+            margin: 24px auto;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e4ecfa;
+            box-shadow: 0 16px 35px rgba(24, 52, 96, 0.12);
+            padding: 24px;
+        }
+        h1 { font-family: 'Space Grotesk', sans-serif; margin-bottom: 6px; }
+        .meta { color: #3d5276; margin-bottom: 14px; }
+        .top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .price { color: #0d8f72; font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 11px; border-bottom: 1px solid #edf2fb; text-align: left; }
+        th { background: #f8fbff; font-size: 12px; text-transform: uppercase; color: #3d5276; }
+        .btn-back {
+            display: inline-block;
+            margin-top: 16px;
+            text-decoration: none;
+            color: #236bd0;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top">
+        <div>
+            <h1>Đơn hàng #<span th:text="${order.id}">0</span></h1>
+            <div class="meta">Thời gian: <span th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">00/00/0000 00:00</span></div>
+        </div>
+        <div class="price" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 0)} + ' đ'">0 đ</div>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Tổng dòng</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${order.details}">
+            <td th:text="${d.product.name}">Tên SP</td>
+            <td th:text="${#numbers.formatDecimal(d.unitPrice, 1, 0)} + ' đ'">0 đ</td>
+            <td th:text="${d.quantity}">1</td>
+            <td th:text="${#numbers.formatDecimal(d.unitPrice * d.quantity, 1, 0)} + ' đ'">0 đ</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a class="btn-back" th:href="@{/orders}">← Quay lại lịch sử đơn hàng</a>
+</div>
+</body>
+</html>

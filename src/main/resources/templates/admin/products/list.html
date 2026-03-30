@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sản phẩm</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --bg-1: #eef5ff;
+            --bg-2: #dbe9ff;
+            --ink-900: #172845;
+            --ink-700: #3d5276;
+            --line: #d6e0f0;
+            --primary: #236bd0;
+            --primary-dark: #1858b0;
+            --teal: #0c8d71;
+            --danger: #cc3f4e;
+            --price: #0d8f72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background:
+                radial-gradient(72rem 48rem at -8% 0%, #f8fbff 0%, transparent 55%),
+                radial-gradient(65rem 42rem at 108% 10%, #dce9ff 0%, transparent 58%),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, #f8fbff 100%);
+            color: var(--ink-900);
+            min-height: 100vh;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(7px);
+            background: rgba(16, 36, 68, 0.88);
+            color: white;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            letter-spacing: -0.02em;
+            font-weight: 700;
+        }
+        .navbar a {
+            color: #f2f7ff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .nav-chip {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 6px 12px;
+        }
+        .container {
+            max-width: 1180px;
+            margin: 26px auto;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 24px;
+            border-radius: 18px;
+            border: 1px solid #e4ecfa;
+            box-shadow: 0 16px 35px rgba(24, 52, 96, 0.12);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            letter-spacing: -0.02em;
+        }
+        .btn-create {
+            background: linear-gradient(90deg, var(--teal) 0%, #0aa98a 100%);
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            box-shadow: 0 8px 16px rgba(9, 141, 113, 0.25);
+        }
+        .search-form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .search-form input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .search-form button {
+            padding: 10px 18px;
+            background: linear-gradient(90deg, var(--primary) 0%, #307adf 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .table-wrap {
+            border: 1px solid #e2eaf8;
+            border-radius: 14px;
+            overflow: auto;
+            background: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #edf2fb;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+        th {
+            background-color: #f8fbff;
+            font-weight: 700;
+            color: var(--ink-700);
+            font-size: 12px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        tr:hover { background-color: #f8fbff; }
+        .btn-edit, .btn-delete {
+            display: inline-block;
+            padding: 7px 11px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-right: 6px;
+            color: white;
+            font-weight: 700;
+        }
+        .btn-edit { background-color: #16a368; }
+        .btn-delete { background-color: var(--danger); }
+        .price {
+            color: var(--price);
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #dbe4f2;
+        }
+        .product-image-empty {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #eef5ff 0%, #dbe9ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #5c6e8d;
+            font-weight: 700;
+            line-height: 1.2;
+            padding: 4px;
+        }
+        .pagination { display: flex; gap: 10px; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+        .pagination a, .pagination span {
+            padding: 8px 14px; border-radius: 9px; text-decoration: none; font-weight: 700;
+        }
+        .pagination a { background: linear-gradient(90deg, var(--primary) 0%, #3078dd 100%); color: white; }
+        .pagination .info { color: #576a89; font-weight: 500; }
+        footer {
+            text-align: center;
+            color: #5f7190;
+            margin-top: 24px;
+            padding: 14px;
+            border-top: 1px solid #e2e9f6;
+            font-size: 13px;
+        }
+        @media (max-width: 980px) {
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 16px 10px;
+                padding: 14px;
+                border-radius: 14px;
+            }
+            .header h1 {
+                font-size: 27px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .search-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand">📦 Quản lý sản phẩm</div>
+    <a class="nav-chip" th:href="@{/products}">← Trở lại shop</a>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h1>📦 Danh sách sản phẩm</h1>
+        <a th:href="@{/admin/products/add}" class="btn-create">+ Thêm sản phẩm</a>
+    </div>
+
+    <form class="search-form" th:action="@{/admin/products}" method="get">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm sản phẩm..."/>
+        <button type="submit">Tìm</button>
+    </form>
+
+    <div class="table-wrap" th:if="${productPage.totalElements > 0}">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Ảnh</th>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>Danh mục</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product, iterStat : ${products}">
+                <td th:text="${productPage.number * productPage.size + iterStat.count}">1</td>
+                <td>
+                    <img th:if="${product.image != null and product.image != ''}"
+                         th:src="${product.image}" alt="" class="product-image"/>
+                    <div th:if="${product.image == null or product.image == ''}" class="product-image-empty">Chưa có ảnh</div>
+                </td>
+                <td th:text="${product.name}">Tên</td>
+                <td class="price" th:text="${#numbers.formatDecimal(product.price, 1, 0)} + ' đ'">0</td>
+                <td th:text="${product.category.name}">DM</td>
+                <td>
+                    <a th:href="@{/admin/products/{id}/edit(id=${product.id})}" class="btn-edit">Sửa</a>
+                    <a th:href="@{/admin/products/{id}/delete(id=${product.id})}" class="btn-delete"
+                       onclick="return confirm('Xóa sản phẩm này?')">Xóa</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center;color:#6c7f9f;padding:40px 20px;font-size:16px;" th:if="${productPage.totalElements == 0}">
+        <p>Không có sản phẩm nào.</p>
+    </div>
+
+    <div class="pagination" th:if="${productPage.totalElements > 0}">
+        <a th:if="${productPage.hasPrevious()}"
+           th:href="@{/admin/products(page=${productPage.number - 1},keyword=${keyword})}">Previous</a>
+        <span th:unless="${productPage.hasPrevious()}" class="info" style="opacity:0.5;">Previous</span>
+        <span class="info">
+            Trang <span th:text="${productPage.number + 1}">1</span> / <span th:text="${productPage.totalPages}">1</span>
+            (<span th:text="${productPage.totalElements}">0</span> sản phẩm)
+        </span>
+        <a th:if="${productPage.hasNext()}"
+           th:href="@{/admin/products(page=${productPage.number + 1},keyword=${keyword})}">Next</a>
+        <span th:unless="${productPage.hasNext()}" class="info" style="opacity:0.5;">Next</span>
+    </div>
+
+    <footer>
+        © 2026 — Quản lý &amp; mua sắm sản phẩm (J2EE / Spring Boot)
+    </footer>
+</div>
+</body>
+</html>

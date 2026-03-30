@@ -1,11 +1,15 @@
 package nguyenthanhnhan.controller;
 
 import nguyenthanhnhan.entity.Product;
+import nguyenthanhnhan.service.CartSessionService;
 import nguyenthanhnhan.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/products")
@@ -13,12 +17,61 @@ public class ProductController {
     
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private CartSessionService cartSessionService;
     
-    // Display all products
+    private static final int PAGE_SIZE = 5;
+
     @GetMapping("")
-    public String listProducts(Model model) {
-        model.addAttribute("products", productService.getAllProducts());
+    public String listProducts(
+            Authentication authentication,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(name = "categoryId", required = false) String categoryIdParam,
+            @RequestParam(required = false, defaultValue = "default") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
+        String kw = keyword != null ? keyword : "";
+        Long categoryId = null;
+        if (categoryIdParam != null && !categoryIdParam.isBlank()) {
+            try {
+                categoryId = Long.parseLong(categoryIdParam);
+            } catch (NumberFormatException ignored) {
+                // bỏ qua giá trị không hợp lệ
+            }
+        }
+        Page<Product> productPage = productService.searchProducts(kw, categoryId, sort, page, PAGE_SIZE);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("keyword", kw);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("sort", sort);
+        model.addAttribute("categories", productService.getAllCategories());
+        if (authentication != null) {
+            int cartCount = cartSessionService.getCartItemCount(authentication.getName());
+            model.addAttribute("cartCount", cartCount);
+        }
         return "products/list";
+    }
+
+    @GetMapping("/{id}")
+    public String productDetail(
+            @PathVariable Long id,
+            Authentication authentication,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        var productOpt = productService.getProductById(id);
+        if (productOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm.");
+            return "redirect:/products";
+        }
+
+        model.addAttribute("product", productOpt.get());
+        if (authentication != null) {
+            int cartCount = cartSessionService.getCartItemCount(authentication.getName());
+            model.addAttribute("cartCount", cartCount);
+        }
+        return "products/detail";
     }
     
     // Show create product form

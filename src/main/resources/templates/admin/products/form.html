@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.id != null ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}">Sản phẩm</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --bg-soft: #edf5ff;
+            --bg-mid: #d9ecff;
+            --ink-900: #192a49;
+            --ink-600: #5c6e8d;
+            --line: #d4dfef;
+            --primary: #246bce;
+            --primary-dark: #1655ad;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background:
+                radial-gradient(72rem 40rem at -8% 0%, #f9fbff 0%, transparent 58%),
+                radial-gradient(55rem 35rem at 110% 15%, #d9eaff 0%, transparent 60%),
+                linear-gradient(135deg, var(--bg-soft) 0%, var(--bg-mid) 52%, #f8fbff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            width: 100%;
+            max-width: 560px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 18px 42px rgba(29, 63, 113, 0.2);
+            padding: 28px 28px 24px;
+            border: 1px solid #e7eefb;
+            position: relative;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            border-radius: 16px 16px 0 0;
+            background: linear-gradient(90deg, #2570d6 0%, #37a1ff 40%, #0b8f72 100%);
+        }
+        h1 {
+            font-size: 30px;
+            color: var(--ink-900);
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            color: var(--ink-600);
+            margin-bottom: 22px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .field { margin-bottom: 15px; }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #22395f;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #5a93ef;
+            box-shadow: 0 0 0 4px rgba(58, 123, 226, 0.16);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .error {
+            color: #b72020;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn {
+            flex: 1;
+            border: none;
+            background: linear-gradient(90deg, var(--primary) 0%, #307adf 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, var(--primary-dark) 0%, #246bce 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(27, 92, 188, 0.27);
+        }
+        .btn-cancel {
+            background: #e0e7f1;
+            color: var(--ink-900);
+        }
+        .btn-cancel:hover {
+            background: #d0d9e8;
+        }
+        @media (max-width: 520px) {
+            .card {
+                padding: 24px 18px 20px;
+                border-radius: 14px;
+            }
+            h1 { font-size: 27px; }
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1 th:text="${product.id != null ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}">Sản phẩm</h1>
+    <p class="subtitle" th:text="${product.id != null ? 'Cập nhật thông tin sản phẩm' : 'Tạo sản phẩm mới'}">Form sản phẩm</p>
+
+    <form th:action="${formAction}" 
+          th:object="${product}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="field">
+            <label for="name">Tên sản phẩm *</label>
+            <input id="name" type="text" th:field="*{name}" placeholder="Ví dụ: Laptop Dell XPS 13..." required/>
+            <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+
+        <div class="field">
+            <label for="price">Giá (đ) *</label>
+            <input id="price" type="number" th:field="*{price}" placeholder="15000000" min="0" step="1000" required/>
+            <div class="error" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+        </div>
+
+        <div class="field">
+            <label for="categoryId">Danh mục *</label>
+            <select id="categoryId" name="category.id" required>
+                <option value="">-- Chọn danh mục --</option>
+                <option th:each="category : ${categories}" 
+                        th:value="${category.id}"
+                        th:text="${category.name}"
+                        th:selected="${product.category != null and product.category.id == category.id}"></option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="image">Đường dẫn ảnh</label>
+            <input id="image" type="text" th:field="*{image}" placeholder="https://example.com/image.jpg"/>
+            <div class="error" th:if="${#fields.hasErrors('image')}" th:errors="*{image}"></div>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="btn" th:text="${product.id != null ? 'Cập nhật' : 'Thêm mới'}">Thêm mới</button>
+            <a th:href="@{/admin/products}" class="btn btn-cancel" style="text-decoration:none;text-align:center;">Hủy</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

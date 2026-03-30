@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --bg-1: #eef5ff;
+            --bg-2: #dbe9ff;
+            --ink-900: #172845;
+            --ink-700: #3d5276;
+            --line: #d6e0f0;
+            --primary: #236bd0;
+            --danger: #cc3f4e;
+            --teal: #0c8d71;
+            --price: #0d8f72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background:
+                radial-gradient(72rem 48rem at -8% 0%, #f8fbff 0%, transparent 55%),
+                radial-gradient(65rem 42rem at 108% 10%, #dce9ff 0%, transparent 58%),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, #f8fbff 100%);
+            color: var(--ink-900);
+            min-height: 100vh;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(7px);
+            background: rgba(16, 36, 68, 0.88);
+            color: white;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .navbar ul { list-style: none; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+        .navbar a { color: #f2f7ff; text-decoration: none; font-weight: 700; font-size: 14px; }
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            letter-spacing: -0.02em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #59b2ff 0%, #2f79e9 100%);
+        }
+        .nav-chip {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 6px 12px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 26px auto;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 24px;
+            border-radius: 18px;
+            border: 1px solid #e4ecfa;
+            box-shadow: 0 16px 35px rgba(24, 52, 96, 0.12);
+        }
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+        .subtitle { color: var(--ink-700); margin-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #edf2fb; }
+        th { background: #f8fbff; font-size: 12px; text-transform: uppercase; color: var(--ink-700); }
+        .price { color: var(--price); font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
+        .btn {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .btn-primary { background: linear-gradient(90deg, var(--primary) 0%, #3078dd 100%); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: linear-gradient(90deg, var(--teal) 0%, #12a888 100%); color: white; margin-top: 16px; }
+        .alert { padding: 12px; border-radius: 10px; margin-bottom: 16px; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+        .total-row {
+            font-size: 18px;
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f7faff 0%, #eef4ff 100%);
+            border: 1px solid #dfe8f9;
+        }
+        .empty { color: #666; padding: 24px; text-align: center; border: 1px dashed #c9d6ec; border-radius: 12px; }
+        input[type="number"] { width: 64px; padding: 6px; border: 1px solid var(--line); border-radius: 8px; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="brand"><span class="brand-dot"></span>Shop Board</div>
+    <ul>
+        <li><a class="nav-chip" th:href="@{/products}">Sản phẩm</a></li>
+        <li><a class="nav-chip" th:href="@{/cart}">Giỏ hàng</a></li>
+        <li><a class="nav-chip" th:href="@{/orders}">Đơn hàng</a></li>
+        <li sec:authorize="isAuthenticated()">
+            <span>Xin chào, <strong sec:authentication="name">user</strong></span>
+        </li>
+        <li sec:authorize="isAuthenticated()">
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-primary" style="background:transparent;border:1px solid #fff;color:#fff;">Đăng xuất</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+
+<div class="container">
+    <h1>Giỏ hàng</h1>
+    <p class="subtitle">Kiểm tra lại số lượng trước khi đặt hàng.</p>
+
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="empty" th:if="${cart.isEmpty()}">
+        <p>Giỏ hàng đang trống.</p>
+        <a class="btn btn-primary" th:href="@{/products}" style="margin-top:12px;display:inline-block;">Xem sản phẩm</a>
+    </div>
+
+    <table th:if="${!cart.isEmpty()}">
+        <thead>
+        <tr>
+            <th>Tên sản phẩm</th>
+            <th>Đơn giá</th>
+            <th>Số lượng</th>
+            <th>Tổng dòng</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${cartItems}">
+            <td th:text="${item.productName}">Tên</td>
+            <td class="price" th:text="${#numbers.formatDecimal(item.price, 1, 0)} + ' đ'">0</td>
+            <td>
+                <form th:action="@{/cart/update}" method="post" class="actions">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="productId" th:value="${item.productId}"/>
+                    <input type="number" name="quantity" min="1" th:value="${item.quantity}"/>
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                </form>
+            </td>
+            <td class="price" th:text="${#numbers.formatDecimal(item.price * item.quantity, 1, 0)} + ' đ'">0</td>
+            <td>
+                <form th:action="@{/cart/remove}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="productId" th:value="${item.productId}"/>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="total-row" th:if="${!cart.isEmpty()}">
+        <strong>Tổng tiền:</strong>
+        <span class="price" th:text="${#numbers.formatDecimal(cartTotal, 1, 0)} + ' đ'">0</span>
+    </p>
+
+    <form th:action="@{/cart/checkout}" method="post" th:if="${!cart.isEmpty()}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="btn btn-success">Đặt hàng</button>
+    </form>
+</div>
+</body>
+</html>

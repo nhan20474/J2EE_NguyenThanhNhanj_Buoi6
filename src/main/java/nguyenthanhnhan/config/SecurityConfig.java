@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,14 +19,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error", "/css/**", "/js/**", "/images/**").permitAll()
+                    .requestMatchers("/", "/error", "/css/**", "/js/**", "/images/**", "/register", "/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit", "/products/*/delete").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
-                        .requestMatchers("/products/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/products/**", "/cart/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
-                .logout(Customizer.withDefaults());
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/products", true)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout=1")
+                .permitAll()
+            );
 
         return http.build();
     }
